@@ -1,0 +1,182 @@
+{
+ "pagina": "page.png",
+ "zoom": 9,
+ "sweeps": [
+  {
+   "id": "titulo",
+   "rect": "titulo",
+   "sent": 0,
+   "from": 4,
+   "to": 14
+  },
+  {
+   "id": "nome1",
+   "rect": "nome1",
+   "sent": 1,
+   "from": 0,
+   "to": 11,
+   "zoom": 0.8
+  },
+  {
+   "id": "nome2",
+   "rect": "nome2",
+   "sent": 1,
+   "from": 13,
+   "to": 23
+  },
+  {
+   "id": "regime",
+   "rect": "regime",
+   "sent": 1,
+   "from": 24,
+   "to": 27
+  },
+  {
+   "id": "mp",
+   "rect": "mp",
+   "sent": 2
+  },
+  {
+   "id": "juri",
+   "rect": "juri",
+   "sent": 4,
+   "from": 0,
+   "to": 5,
+   "zoom": 0.8
+  },
+  {
+   "id": "tjrs",
+   "rect": "tjrs",
+   "sent": 4,
+   "from": 6,
+   "to": 13
+  },
+  {
+   "id": "quote1",
+   "rect": "quote1",
+   "sent": 5,
+   "from": 9,
+   "to": 16
+  },
+  {
+   "id": "teto",
+   "rect": "teto",
+   "sent": 5,
+   "from": 17,
+   "to": 26,
+   "zoom": 0.8
+  },
+  {
+   "id": "proc",
+   "rect": "processo",
+   "sent": 6,
+   "at": 0,
+   "dur": 1.0
+  }
+ ],
+ "chips": [
+  {
+   "sent": 0,
+   "texto": "NOTA OFICIAL DO STJ · 10-11-2026"
+  },
+  {
+   "sent": 1,
+   "texto": "NOTA DO STJ · 1º PARÁGRAFO"
+  },
+  {
+   "sent": 2,
+   "texto": "NOTA DO STJ · 2º PARÁGRAFO"
+  },
+  {
+   "sent": 3,
+   "texto": "NOTA DO STJ · VOTOS DA RELATORA E DE SCHIETTI"
+  },
+  {
+   "sent": 4,
+   "texto": "NOTA DO STJ · 3º PARÁGRAFO"
+  },
+  {
+   "sent": 5,
+   "texto": "VOTO DO MIN. SCHIETTI · NOTA DO STJ"
+  },
+  {
+   "sent": 6,
+   "texto": "FONTE: STJ · REsp 2.256.938"
+  }
+ ],
+ "cards": [
+  {
+   "tipo": "nota",
+   "sent": 2,
+   "from": 11,
+   "off": 0.1,
+   "label": "SEGUNDO A NOTA DO STJ",
+   "texto": "A gravidade da conduta dos empresários deveria ter maior peso na definição das penas.",
+   "fs": 37
+  },
+  {
+   "tipo": "nota",
+   "sent": 3,
+   "off": 0.1,
+   "label": "SEGUNDO A NOTA DO STJ",
+   "texto": "A relatora e o ministro Schietti, cujo voto prevaleceu, reincluíram a culpabilidade entre as circunstâncias negativas.",
+   "fs": 32
+  },
+  {
+   "tipo": "escada",
+   "sent": 4,
+   "label": "COMO AS PENAS MUDARAM",
+   "cols": [
+    {
+     "nome": "JÚRI"
+    },
+    {
+     "nome": "TJRS · 2025",
+     "tok_r": [
+      12,
+      12
+     ]
+    },
+    {
+     "nome": "STJ · 2026",
+     "tok_r": [
+      18,
+      18
+     ]
+    }
+   ],
+   "rows": [
+    {
+     "nome": "SPOHR",
+     "v": [
+      "22 anos e 6 meses",
+      "12 anos",
+      "14 anos e 4 meses"
+     ]
+    },
+    {
+     "nome": "HOFFMANN",
+     "v": [
+      "19 anos e 6 meses",
+      "12 anos",
+      "13 anos e 2 meses"
+     ]
+    }
+   ]
+  },
+  {
+   "tipo": "nota",
+   "sent": 5,
+   "from": 13,
+   "label": "EM LINGUAGEM SIMPLES",
+   "texto": "O Ministério Público não recorreu da condenação. Por isso, a pena do júri virou o limite para a acusação.",
+   "fs": 37
+  }
+ ],
+ "carimbos": [],
+ "pessoa": {
+  "arquivo": "pessoa.mov",
+  "lado": "esq",
+  "x": 4
+ }
+}

@@ -1,0 +1,63 @@
+{
+ "nome": "kiss-na-fonte",
+ "selo": "CASO BOATE KISS · STJ",
+ "duracao_max": 40,
+ "cena": "na-fonte",
+ "rotulo_fixo": "",
+ "lancamento": "17-11-2026",
+ "capitulos": [
+  [
+   "A DECISÃO",
+   0
+  ],
+  [
+   "AS PENAS",
+   1
+  ],
+  [
+   "O RECURSO",
+   2
+  ],
+  [
+   "O HISTÓRICO",
+   4
+  ],
+  [
+   "O VOTO",
+   5
+  ]
+ ],
+ "frases": [
+  {
+   "fala": "Notícia rápida: hoje, o STJ aumentou as penas dos dois sócios do caso Boate Kiss.",
+   "tela": "Notícia rápida: hoje, o STJ aumentou as penas dos dois sócios do caso Boate Kiss."
+  },
+  {
+   "fala": "Elissandro Spohr teve a pena aumentada para 14 anos e 4 meses, e Mauro Hoffmann, a pena aumentada para 13 anos e 2 meses, ambos em regime fechado.",
+   "tela": "Elissandro Spohr teve a pena aumentada para 14 anos e 4 meses, e Mauro Hoffmann, a pena aumentada para 13 anos e 2 meses, ambos em regime fechado."
+  },
+  {
+   "fala": "O recurso foi do Ministério Público do Rio Grande do Sul, e o STJ acolheu em parte.",
+   "tela": "O recurso foi do Ministério Público do Rio Grande do Sul, e o STJ acolheu em parte."
+  },
+  {
+   "fala": "O vetor aumentado foi o da culpabilidade.",
+   "tela": "O vetor aumentado foi o da culpabilidade."
+  },
+  {
+   "fala": "Inicialmente, as penas eram bem maiores. O TJ diminuiu para cerca de 12 anos, e agora teve um novo aumento.",
+   "tela": "Inicialmente, as penas eram bem maiores. O TJ diminuiu para cerca de 12 anos, e agora teve um novo aumento."
+  },
+  {
+   "fala": "O ponto central é o argumento do ministro Schietti: como o Ministério Público não recorreu da sentença, a pena fixada pelo júri é o teto da acusação.",
+   "tela": "O ponto central é o argumento do ministro Schietti: como o Ministério Público não recorreu da sentença, a pena fixada pelo júri é o teto da acusação."
+  },
+  {
+   "fala": "Segue a gente para os próximos vídeos.",
+   "tela": "Segue a gente para os próximos vídeos."
+  }
+ ],
+ "fontes": [
+  "STJ, 'Sexta Turma aumenta pena dos sócios pela tragédia da Boate Kiss', 10-11-2026: https://www.stj.jus.br/sites/portalp/paginas/comunicacao/noticias/2026/10112026-sexta-turma-aumenta-pena-dos-socios-pela-tragedia-da-boate-kiss.aspx"
+ ]
+}

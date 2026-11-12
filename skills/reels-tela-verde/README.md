@@ -47,6 +47,8 @@ O Whisper (`small`) também baixa sozinho na primeira vez.
 11. **Conferir**: `ffprobe` (duração ≤ 40 s), prancha de 16 quadros, ouvir no celular.
 12. **Capa** (1080x1920; o essencial fica no centro 1080x1350, que é o recorte da grade do perfil):
     `capa.json` {t, linha1, linha2, pessoa_t, lado, saida} → `python NF/capa.py capa.json`.
+    Opções: `pessoa_png` (recorte pronto de um quadro escolhido, ex.: antes de começar a falar, sorrindo de boca fechada)
+    ou `sem_pessoa: true` (avatar + "Siga @ohermeneuta_"). Procure o quadro no BRUTO inteiro, não só no vídeo cortado.
     `linha1` curta em branco (o fato), `linha2` em itálico dourado (o caso). Escolha `pessoa_t` num quadro com boca
     fechada e olhar na câmera (gere 3–4 opções e compare). Sem exclamação, até ~28 caracteres por linha.
 13. **Legenda do post** (`saida/<nome>-legenda.txt`): tom sóbrio e jornalístico, 1 frase de abertura com o fato,

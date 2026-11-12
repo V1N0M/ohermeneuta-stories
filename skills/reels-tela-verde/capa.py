@@ -22,8 +22,13 @@ f1 = fit(cfg["linha1"], lambda s: ui.font(s, 900), wmax, 84); f2 = fit(cfg["linh
 d.text((xl, y0 + 98), cfg["linha1"], font=f1, fill=(248, 246, 242, 255), anchor="ls")
 d.text((xl, y0 + 188), cfg["linha2"], font=f2, fill=(242, 201, 76, 255), anchor="ls")
 ui.stext(d, xl, y1 - 20, "@OHERMENEUTA_ · NA FONTE", ui.font(24, 800), (217, 184, 101, 255), 3)
-if N.PES:
-    p = N.pessoa_frame(int(round(cfg.get("pessoa_t", 5.0) * 30)))
+if cfg.get("sem_pessoa"):
+    av = Image.open(os.path.join(os.path.dirname(os.path.abspath(N.__file__)), "assets", "avatar-hermeneuta.png")).convert("RGBA").resize((170, 170), Image.LANCZOS)
+    mk = Image.new("L", (170, 170), 0); ImageDraw.Draw(mk).ellipse([0, 0, 169, 169], fill=255); av.putalpha(mk)
+    d.ellipse([W // 2 - 91, 1371, W // 2 + 91, 1553], outline=(201, 162, 75, 255), width=5); base.alpha_composite(av, (W // 2 - 85, 1377))
+    f = ui.font(34, 800); tx = "Siga @ohermeneuta_"; d.text(((W - d.textlength(tx, font=f)) / 2, 1610), tx, font=f, fill=(248, 246, 242, 255), anchor="ls")
+elif N.PES:
+    p = Image.open(cfg["pessoa_png"]).convert("RGBA") if cfg.get("pessoa_png") else N.pessoa_frame(int(round(cfg.get("pessoa_t", 5.0) * 30)))
     if p is not None:
         sc = cfg.get("escala", 1.18); p = p.resize((int(p.width * sc), int(p.height * sc)), Image.LANCZOS)
         x = W - p.width + 6 if lado == "dir" else -6; base.alpha_composite(p, (x, H - p.height))

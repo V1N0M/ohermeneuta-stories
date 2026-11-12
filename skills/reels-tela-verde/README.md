@@ -1,4 +1,4 @@
-# Na fonte — Reel d'O Hermeneuta sobre a página oficial da notícia
+# Reels tela verde ("Na fonte") — Reel d'O Hermeneuta sobre a página oficial da notícia
 
 Formato aprovado em 12-11-2026 (caso Boate Kiss, nota do STJ de 10-11-2026).
 No centro, a câmera percorre o print real da notícia/julgado e grifa em dourado o trecho que está sendo falado.
@@ -11,7 +11,7 @@ Requisitos: Python 3.10+, Node 18+, ffmpeg no PATH. Funciona em Linux, macOS e W
 
 ```
 git clone --depth 1 https://github.com/V1N0M/ohermeneuta-stories
-cd ohermeneuta-stories/skills/na-fonte
+cd ohermeneuta-stories/skills/reels-tela-verde
 pip install -r requirements.txt          # no Linux da nuvem: pip install --break-system-packages -r requirements.txt
 npm install && npx playwright install chromium
 ```
@@ -20,7 +20,7 @@ O Whisper (`small`) também baixa sozinho na primeira vez.
 
 ## Comandos, na ordem (rode dentro da pasta de trabalho do vídeo)
 
-`NF` = caminho desta pasta (`skills/na-fonte`). A pasta de trabalho é qualquer outra (ex.: `reel-kiss/`).
+`NF` = caminho desta pasta (`skills/reels-tela-verde`). A pasta de trabalho é qualquer outra (ex.: `reel-kiss/`).
 
 1. **Transcrever o bruto** e escolher as tomadas:
    `python NF/cortar.py transcrever bruto.mp4` → `bruto_tr.json` + frases com tempos na tela.
@@ -45,6 +45,21 @@ O Whisper (`small`) também baixa sozinho na primeira vez.
    nada cortado, cartão dentro da caixa (máx. 2 linhas a 35–37 px), pessoa sem resto de fundo.
 10. **Render**: `python NF/nafonte.py` → `saida/<nome>.mp4` (1080x1920, 30 fps, H.264 + AAC).
 11. **Conferir**: `ffprobe` (duração ≤ 40 s), prancha de 16 quadros, ouvir no celular.
+12. **Capa** (1080x1920; o essencial fica no centro 1080x1350, que é o recorte da grade do perfil):
+    `capa.json` {t, linha1, linha2, pessoa_t, lado, saida} → `python NF/capa.py capa.json`.
+    `linha1` curta em branco (o fato), `linha2` em itálico dourado (o caso). Escolha `pessoa_t` num quadro com boca
+    fechada e olhar na câmera (gere 3–4 opções e compare). Sem exclamação, até ~28 caracteres por linha.
+13. **Legenda do post** (`saida/<nome>-legenda.txt`): tom sóbrio e jornalístico, 1 frase de abertura com o fato,
+    1 parágrafo por ponto (decisão com 📌 + processo + órgão + data; contexto; fundamento), linha "Fonte: ...",
+    chamada "Siga @ohermeneuta_" e 5 hashtags. Máx. 2.200 caracteres; 📌 é o único emoji (no máximo 2);
+    sem exclamação e sem pergunta retórica; datas 10-11-2026. Confira: `python NF/legenda.py saida/<nome>-legenda.txt`.
+
+## Elementos padrão que sempre saem no vídeo (não remover)
+- **Legenda karaokê** (palavra falada em destaque dourado) = texto de `roteiro.json` alinhado à fala.
+- **Barra de progresso segmentada** no topo + faixa "DIREITO FORA DOS AUTOS · @OHERMENEUTA_".
+- **Nome/selo do caso** (`roteiro.selo`, ex.: "CASO BOATE KISS · STJ") e etiqueta de capítulo (`roteiro.capitulos`).
+- **Cartão final** (2,5 s): marca, lançamento do site (`roteiro.lancamento`; depois de 17-11-2026 vira "o site já está no ar")
+  e o botão "Seguir" clicado, que vira "Seguindo".
 
 ## nafonte.json
 
@@ -63,6 +78,9 @@ O Whisper (`small`) também baixa sozinho na primeira vez.
 - Frase sem grifo (ex.: comentário do apresentador) → câmera parada + um cartão.
 - `pessoa.lado`: `esq` ou `dir`. Fica no canto inferior, abaixo da legenda; some suavemente no cartão final.
 - Ajustes finos: `move_thr` (.22), `glide_max` (1.8 s), `cam_sigma` (.18 s), `dim` (.5, escurece fora do trecho).
+
+## Entregas
+`saida/<nome>.mp4`, `saida/capa.png`, `saida/<nome>-legenda.txt`, prancha `saida/qc.jpg` e a lista de fontes no chat.
 
 ## As 8 ferramentas do editor (use só as que a notícia pedir; no máximo 2 cartões extras por vídeo)
 

@@ -68,6 +68,11 @@ def keys():
             for p in path:
                 if p[0] > ten: pts.append(p)
             cur = path[-1][1:]
+            if CFG.get("volta_inicio", True):   # depois do grifo com lupa, volta devagar para o início da linha (texto lido da esquerda)
+                back = (*clampc(q["lines"][0][0] * 0 + min(l[0] for l in q["lines"]) + hx - 40, cur[1], z), z)
+                for i in range(1, 9):
+                    u = i / 8; e = u * u * (3 - 2 * u); pts.append((q["tb"] + .15 + .9 * u, cur[0] + (back[0] - cur[0]) * e, cur[1], z))
+                cur = back; prev_tb = max(prev_tb, q["tb"] + 1.05)
         prev_tb = max(prev_tb, q["tb"])
     pts.append((TOTAL + 1,) + cur); pts.sort(key=lambda z: z[0]); return pts
 def cam_track():
@@ -146,7 +151,7 @@ def cards_layer(im, t):
     d = ImageDraw.Draw(im, "RGBA")
     for c in CFG["cards"]:
         a = (tok(c["sent"], c["from"])[0] if c.get("from") is not None else SENT[c["sent"]][0]) + c.get("off", 0)
-        b = (tok(c["sent"], c["to"])[1] if c.get("to") is not None else (SENT[c["sent"] + 1][0] if c["sent"] + 1 < len(SENT) else END0)) + c.get("offb", -.02)
+        se = c.get("sent_to", c["sent"]); b = (tok(se, c["to"])[1] if c.get("to") is not None else (SENT[se + 1][0] if se + 1 < len(SENT) else END0)) + c.get("offb", -.02)
         if not (a - .01 <= t < b): continue
         o = min(kk(t, a, a + .25), 1 - kk(t, b - .22, b)); dy = int((1 - eout(kk(t, a, a + .35))) * 22)
         tmp = Image.new("RGBA", (W, H), (0, 0, 0, 0)); td = ImageDraw.Draw(tmp, "RGBA")

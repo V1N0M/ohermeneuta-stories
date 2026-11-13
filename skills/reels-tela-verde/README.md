@@ -81,6 +81,16 @@ O Whisper (`small`) também baixa sozinho na primeira vez.
 - `pessoa.lado`: `esq` ou `dir`. Fica no canto inferior, abaixo da legenda; some suavemente no cartão final.
 - Ajustes finos: `move_thr` (.22), `glide_max` (1.8 s), `cam_sigma` (.18 s), `dim` (.5, escurece fora do trecho).
 
+## Abertura com carimbo, apresentador à direita e efeitos sonoros (aprovado em 13-11-2026)
+- `"layout": "pessoa_dir"` + `"pessoa": {"arquivo":"pessoa.mov","lado":"dir","x":135,"y_base":1570,"escala":0.9}`:
+  apresentador à direita, fora da coluna de botões do Instagram (x > 950) e da faixa do texto do post (y > 1570);
+  legenda e cartões vão para a coluna da esquerda (cartões com até 3 linhas, fs 31).
+- `"intro": {"grande":"pessoa_big.mov","fim":<fim da 1ª frase>,"t_carimbo":0.75,"carimbo":["VAI CAIR","NA TUA PROVA"]}`:
+  ele aparece grande no centro durante o gancho, um carimbo vermelho bate na tela e, no fim da frase, ele encolhe para o canto.
+  Gere o grande com `ffmpeg -i cut.mov -t <fim+1.3> intro.mov` e `python NF/recorte_rvm.py intro.mov pessoa_big.mov 700 0.2`.
+- Efeitos: `python NF/sfx.py` (carimbo, whoosh em cada zoom/rolagem e no encolher, tic nos cartões, clique + plim no Seguir).
+  Depois do render, normalize e remonte o áudio: `ffmpeg -i audio.wav -af loudnorm=I=-14:TP=-1.5:LRA=11 audio_n.wav`.
+
 ## Revisão obrigatória antes de entregar (lições de 13-11-2026)
 - Decupagem: transcreva CADA trecho de fala isolado (ilhas de energia) com `medium`; tomadas repetidas aparecem como
   frases iguais seguidas. Fique só com a última completa. Nunca trate repetição como "pausa".

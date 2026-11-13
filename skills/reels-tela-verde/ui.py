@@ -95,27 +95,30 @@ def draw_bottom(ov, t):
         if fx > 0: d.rounded_rectangle([xa, 236, xa + sw * fx, 248], 2, fill=A(C["goldV"], 1))
     stext(d, 90, 284, "DIREITO FORA DOS AUTOS · @OHERMENEUTA_", font(22, 700), A(C["ivory"], .72), 3.3)
     d.rectangle([0, 0, W, 6], fill=A(C["gold"], 1))
-    m = asset("meandro.png").copy(); a = np.asarray(m).copy(); a[:, :, 3] = (a[:, :, 3] * .55).astype(np.uint8); ov.alpha_composite(Image.fromarray(a), (0, 1462))
+    if MEANDRO:
+        m = asset("meandro.png").copy(); a = np.asarray(m).copy(); a[:, :, 3] = (a[:, :, 3] * .55).astype(np.uint8); ov.alpha_composite(Image.fromarray(a), (0, 1462))
 
+MEANDRO = True
+CAP = dict(cx=540, y=1310, w=820, fs=56)   # legenda karaokê (o layout com pessoa à direita muda para a coluna da esquerda)
 def draw_caption(ov, t):
     if t >= END0 - .2: return
     c = next((c for c in CH if c[0][1] - .05 <= t < c[-1][2] + .35), None)
     if not c: return
-    d = ImageDraw.Draw(ov); size = 56; f = font(size, 700); sp = d.textlength(" ", font=f)
+    d = ImageDraw.Draw(ov); size = CAP['fs']; f = font(size, 700); sp = d.textlength(" ", font=f)
     allw = [dict(w=w[0], t0=w[1], t1=w[2], wd=d.textlength(w[0], font=f)) for w in c]; tot = sum(x["wd"] + sp for x in allw) - sp
     lines = [[]]
-    if tot > 820:
+    if tot > CAP['w']:
         acc = 0
         for x in allw:
             if acc + x["wd"] > tot / 2 + 40 and lines[0] and len(lines) < 2: lines.append([])
             lines[-1].append(x); acc += x["wd"] + sp
     else: lines[0] = allw
-    lh = 74; nL = len(lines); y0 = 1310 - (nL - 1) * lh / 2
+    lh = 74; nL = len(lines); y0 = CAP['y'] - (nL - 1) * lh / 2
     boxW = max(sum(x["wd"] + sp for x in l) - sp for l in lines) + 70
-    d.rounded_rectangle([540 - boxW / 2, y0 - 58, 540 + boxW / 2, y0 - 58 + nL * lh + 30], 10, fill=A(C["out"], .9)); d.rectangle([540 - boxW / 2, y0 - 58 + nL * lh + 26, 540 + boxW / 2, y0 - 58 + nL * lh + 31], fill=A(C["goldV"], 1))
+    d.rounded_rectangle([CAP['cx'] - boxW / 2, y0 - 58, CAP['cx'] + boxW / 2, y0 - 58 + nL * lh + 30], 10, fill=A(C["out"], .9)); d.rectangle([CAP['cx'] - boxW / 2, y0 - 58 + nL * lh + 26, CAP['cx'] + boxW / 2, y0 - 58 + nL * lh + 31], fill=A(C["goldV"], 1))
     pos = []
     for j, l in enumerate(lines):
-        lw = sum(x["wd"] + sp for x in l) - sp; x = 540 - lw / 2
+        lw = sum(x["wd"] + sp for x in l) - sp; x = CAP['cx'] - lw / 2
         for w in l: pos.append(dict(w=w, x=x, y=y0 + j * lh)); x += w["wd"] + sp
     vis = [p for p in pos if t >= p["w"]["t0"] - .02]; ci = len(vis) - 1
     mask = Image.new("L", (W, H), 0); md = ImageDraw.Draw(mask); hit = False

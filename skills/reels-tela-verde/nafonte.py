@@ -7,8 +7,12 @@ from PIL import Image, ImageDraw, ImageFilter
 import words, ui
 from ui import font, geo, C, A, eout, eio, tlen, stext, k as kk
 W, H = 1080, 1920; WX, WY, WW, WH = 40, 440, 1000, 560; MY0, MY1 = 1025, 1222
+CWW, NOTA_Y0, NOTA_LH = WW, 104, 48
 R = words.R; TM = json.load(open("tempos.json")); SENT = TM["sent"]; END0 = TM["END0"]; TOTAL = TM["TOTAL"]
 CFG = json.load(open("nafonte.json")); RC = json.load(open("rects.json")); DSF = RC["dsf"]
+if CFG.get("layout") == "pessoa_dir":   # apresentador à direita, fora da coluna de botões do Instagram (x>950) e da faixa de baixo (y>1570)
+    CWW, MY1, NOTA_Y0, NOTA_LH = 545, 1262, 98, 44
+    ui.CAP.update(cx=WX + 272, y=1390, w=460, fs=50); ui.MEANDRO = False
 PG = cv2.imread(CFG.get("pagina", "page.png")); PH, PW = PG.shape[:2]
 PYR = {1.0: PG, .5: cv2.resize(PG, None, fx=.5, fy=.5, interpolation=cv2.INTER_AREA), .25: cv2.resize(PG, None, fx=.25, fy=.25, interpolation=cv2.INTER_AREA)}
 # ---------- tempos das palavras por frase
@@ -143,7 +147,7 @@ def chip_layer(im, t):
         d.rounded_rectangle([x, y, x + w, y + 50], 25, fill=A(C["navy"], .96 * o), outline=A((214, 80, 80) if no else C["goldV"], o), width=3)
         (cross if no else check)(d, x + 20, y + 14, 22, A((236, 96, 96) if no else C["goldV"], o)); stext(d, x + 56, y + 34, txt, f, A(C["ivory"], o), 2)
 def card_frame(d, o, label, col=None):
-    d.rounded_rectangle([WX, MY0, WX + WW, MY1], 18, fill=A(C["out"], .93 * o)); d.rectangle([WX, MY0 + 14, WX + 8, MY1 - 14], fill=A(col or C["goldV"], o))
+    d.rounded_rectangle([WX, MY0, WX + CWW, MY1], 18, fill=A(C["out"], .93 * o)); d.rectangle([WX, MY0 + 14, WX + 8, MY1 - 14], fill=A(col or C["goldV"], o))
     stext(d, WX + 36, MY0 + 42, label, font(23, 800), A(col or C["gold2"], o), 3)
 def wrap(d, txt, f, wmax):
     ws = txt.split(); ls = []; cur = ""
@@ -161,8 +165,8 @@ def cards_layer(im, t):
         o = min(kk(t, a, a + .25), 1 - kk(t, b - .22, b)); dy = int((1 - eout(kk(t, a, a + .35))) * 22)
         tmp = Image.new("RGBA", (W, H), (0, 0, 0, 0)); td = ImageDraw.Draw(tmp, "RGBA")
         if c["tipo"] == "nota":
-            card_frame(td, 1, c["label"]); f = font(c.get("fs", 39), 700); ls = wrap(td, c["texto"], f, WW - 80)
-            for i, l in enumerate(ls): stext(td, WX + 36, MY0 + 104 + i * 48, l, f, A(C["ivory"], 1))
+            card_frame(td, 1, c["label"]); f = font(c.get("fs", 39), 700); ls = wrap(td, c["texto"], f, CWW - 72)
+            for i, l in enumerate(ls): stext(td, WX + 36, MY0 + NOTA_Y0 + i * NOTA_LH, l, f, A(C["ivory"], 1))
         elif c["tipo"] == "glossario":
             card_frame(td, 1, c["label"], (150, 190, 240)); f = font(c.get("fs", 35), 600); ls = wrap(td, c["texto"], f, WW - 80)
             for i, l in enumerate(ls): stext(td, WX + 36, MY0 + 96 + i * 43, l, f, A(C["ivory"], 1))
@@ -242,22 +246,74 @@ def frame(t):
         im = Image.fromarray(np.clip(img, 0, 255).astype(np.uint8)).convert("RGBA")
         hd = Image.new("RGBA", (W, H), (0, 0, 0, 0)); ui.draw_header(hd, t); hd.putalpha(hd.getchannel("A").point(lambda v: int(v * kk(t, T_AB - .6, T_AB))))
         ov = Image.new("RGBA", (W, H), (0, 0, 0, 0)); ui.draw_caption(ov, t); im.alpha_composite(hd); im.alpha_composite(ov); return im.convert("RGB")
-    im = frame_main(t); im.alpha_composite(ui.overlay(t)); pessoa_layer(im, t); return im.convert("RGB")
-PES = CFG.get("pessoa"); _pr = [None, -1]
-def pessoa_frame(i):
-    pj = json.load(open(os.path.splitext(PES["arquivo"])[0] + ".json")); w, h = pj["w"], pj["h"]
-    if _pr[0] is None or i != _pr[1] + 1:
-        if _pr[0] is not None: _pr[0].kill()
-        _pr[0] = subprocess.Popen(["ffmpeg", "-v", "error", "-ss", "%.3f" % (i / 30), "-i", PES["arquivo"], "-f", "rawvideo", "-pix_fmt", "rgba", "-"], stdout=subprocess.PIPE)
-    b = _pr[0].stdout.read(w * h * 4); _pr[1] = i
+    im = frame_main(t)
+    if PES and INTRO and t < INTRO["fim"] + INTRO.get("transicao", .7):
+        intro_layer(im, t); im.alpha_composite(ui.overlay(t)); return im.convert("RGB")
+    im.alpha_composite(ui.overlay(t)); pessoa_layer(im, t); return im.convert("RGB")
+PES = CFG.get("pessoa"); INTRO = CFG.get("intro"); _rd = {}
+def mov_frame(arq, i):
+    pj = json.load(open(os.path.splitext(arq)[0] + ".json")); w, h = pj["w"], pj["h"]; r = _rd.get(arq)
+    if r is None or i != r[1] + 1:
+        if r is not None: r[0].kill()
+        r = [subprocess.Popen(["ffmpeg", "-v", "error", "-ss", "%.3f" % (i / 30), "-i", arq, "-f", "rawvideo", "-pix_fmt", "rgba", "-"], stdout=subprocess.PIPE), i - 1]; _rd[arq] = r
+    b = r[0].stdout.read(w * h * 4); r[1] = i
     return Image.frombytes("RGBA", (w, h), b) if len(b) == w * h * 4 else None
+def pessoa_frame(i): return mov_frame(PES["arquivo"], i)
+def fade_base(p, n=70):   # base do busto se dissolve (não termina num corte reto)
+    a = np.asarray(p.getchannel("A"), np.float32); a[-n:] *= np.linspace(1, 0, n)[:, None]; p.putalpha(Image.fromarray(a.astype(np.uint8))); return p
+def rect_small(pw, ph):
+    if PES.get("lado", "esq") == "dir":
+        yb = PES.get("y_base", 1570); return (W - PES.get("x", 135) - pw, yb - ph, pw, ph)
+    return (PES.get("x", 8), H - ph + PES.get("dy", 0), pw, ph)
+def stamp_img():
+    if "_st" in globals(): return globals()["_st"]
+    l1, l2 = INTRO.get("carimbo", ["VAI CAIR", "NA TUA PROVA"]); w, h = 860, 300; red = (186, 24, 30)
+    im = Image.new("RGBA", (w, h), (0, 0, 0, 0)); d = ImageDraw.Draw(im)
+    d.rounded_rectangle([6, 6, w - 7, h - 7], 26, outline=red + (255,), width=12); d.rounded_rectangle([26, 26, w - 27, h - 27], 16, outline=red + (255,), width=4)
+    for sz in range(130, 40, -2):
+        f2 = font(sz, 900)
+        if d.textlength(l2, font=f2) < w - 110: break
+    f1 = font(int(sz * .92), 900)
+    d.text((w / 2, h * .40), l1, font=f1, fill=red + (255,), anchor="mm"); d.text((w / 2, h * .74), l2, font=f2, fill=red + (255,), anchor="mm")
+    a = np.asarray(im).astype(np.float32); g = np.random.default_rng(5)
+    import cv2 as _cv
+    nz = _cv.GaussianBlur(g.random((h, w)).astype(np.float32), (0, 0), 2.0); nz = (nz - nz.min()) / (nz.max() - nz.min())
+    a[..., 3] *= np.clip(.62 + nz * .6, 0, 1) * (g.random((h, w)) > .03)
+    out = Image.fromarray(a.astype(np.uint8)).rotate(INTRO.get("rot", 7), expand=True, resample=Image.BICUBIC); globals()["_st"] = out; return out
+def intro_layer(im, t):
+    """abertura: apresentador grande no centro, carimbo vermelho; no fim encolhe para o canto. Devolve True se cuidou da pessoa."""
+    t1 = INTRO["fim"]; tr = INTRO.get("transicao", .7)
+    if t >= t1 + tr: return False
+    u = eio(kk(t, t1, t1 + tr))
+    # escurece a página enquanto ele está grande
+    dk = Image.new("RGBA", (W, H), (8, 18, 32, int(150 * (1 - u)))); im.alpha_composite(dk)
+    pb = mov_frame(INTRO["grande"], int(round(t * 30)))
+    if pb is not None:
+        bw, bh = pb.size; big = ((W - bw) // 2, INTRO.get("y_base", 1570) - bh, bw, bh)
+        ps = json.load(open(os.path.splitext(PES["arquivo"])[0] + ".json")); e_ = PES.get("escala", 1); sm = rect_small(int(ps["w"] * e_), int(ps["h"] * e_))
+        x, y, w_, h_ = [big[k] + (sm[k] - big[k]) * u for k in range(4)]
+        p = fade_base(pb.resize((max(2, int(w_)), max(2, int(h_))), Image.LANCZOS), int(70 * h_ / bh) + 1)
+        im.alpha_composite(p, (int(x), int(y)))
+    # carimbo
+    tc = INTRO.get("t_carimbo", .45); ta = tc - .24
+    if t >= ta:
+        st = stamp_img(); v = min(1, (t - ta) / .24); sc = 1 + 1.4 * (1 - eout(v)); al = min(1, v * 2.2) * (1 - kk(t, t1 - .1, t1 + .35))
+        if al > 0:
+            s_ = st.resize((int(st.width * sc * .9), int(st.height * sc * .9)), Image.BICUBIC)
+            if al < 1: s_.putalpha(s_.getchannel("A").point(lambda q: int(q * al)))
+            cx, cy = INTRO.get("carimbo_xy", (540, 560)); shake = int(math.exp(-(t - tc) * 16) * math.sin((t - tc) * 75) * 14) if t >= tc else 0
+            im.alpha_composite(s_, (int(cx - s_.width / 2) + shake, int(cy - s_.height / 2) + shake // 2))
+    return True
 def pessoa_layer(im, t):
     if not PES or t >= END0: return
+    if INTRO and intro_layer(im, t): return
     p = pessoa_frame(int(round(t * 30)))
     if p is None: return
-    o = min(kk(t, 0, .25), 1 - kk(t, END0 - .35, END0))
+    o = min(1 if INTRO else kk(t, 0, .25), 1 - kk(t, END0 - .35, END0))
+    if PES.get("escala", 1) != 1: p = p.resize((int(p.width * PES["escala"]), int(p.height * PES["escala"])), Image.LANCZOS)
+    if PES.get("lado") == "dir": p = fade_base(p)
     if o < 1: p.putalpha(p.getchannel("A").point(lambda v: int(v * o)))
-    x = PES.get("x", 8) if PES.get("lado", "esq") == "esq" else W - p.width - PES.get("x", 8); im.alpha_composite(p, (x, H - p.height + PES.get("dy", 0)))
+    x, y, _, _ = rect_small(p.width, p.height); im.alpha_composite(p, (int(x), int(y)))
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         for t in [float(x) for x in sys.argv[1:]]: frame(t).save("f_%05.1f.jpg" % t, quality=90)

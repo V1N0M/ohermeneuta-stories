@@ -81,6 +81,15 @@ O Whisper (`small`) também baixa sozinho na primeira vez.
 - `pessoa.lado`: `esq` ou `dir`. Fica no canto inferior, abaixo da legenda; some suavemente no cartão final.
 - Ajustes finos: `move_thr` (.22), `glide_max` (1.8 s), `cam_sigma` (.18 s), `dim` (.5, escurece fora do trecho).
 
+## Revisão obrigatória antes de entregar (lições de 13-11-2026)
+- Decupagem: transcreva CADA trecho de fala isolado (ilhas de energia) com `medium`; tomadas repetidas aparecem como
+  frases iguais seguidas. Fique só com a última completa. Nunca trate repetição como "pausa".
+- Depois do corte, transcreva o `cut.mov` frase a frase e confira se a ÚLTIMA palavra de cada frase está lá.
+- `cortar.py` já usa limiar baixo (+8 dB) e folga de 0,30 s no fim: o crossfade cai no silêncio, não na palavra.
+- Print com letra pequena (ex.: lei do Planalto): `zoom` ~1,15 com `"pan": false` (lupa parada, alinhada ao início das
+  linhas) e `glide_min` 1,3 s. Nada de vai e vem lateral em texto miúdo.
+- Recorte: `recorte_rvm.py` em resolução cheia, maior região + média entre quadros (sem borda tremendo).
+
 ## Entregas
 `saida/<nome>.mp4`, `saida/capa.png`, `saida/<nome>-legenda.txt`, prancha `saida/qc.jpg` e a lista de fontes no chat.
 

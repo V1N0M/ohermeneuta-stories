@@ -22,11 +22,11 @@ def transcrever(src, modelo):
     json.dump(out, open(os.path.splitext(os.path.basename(src))[0] + "_tr.json", "w"), ensure_ascii=False)
 def refinar(trechos, a, sr):
     hop = int(.01 * sr); db = 20 * np.log10(np.array([np.sqrt(np.mean(a[i:i + hop] ** 2) + 1e-12) for i in range(0, len(a) - hop, hop)]))
-    thr = np.percentile(db, 8) + 15; out = []
+    thr = np.percentile(db, 8) + 8; out = []   # limiar baixo: pega o fim das sílabas fracas ("-ais", "pena")
     for s, e in trechos:
         i0, i1 = max(0, int((s - .5) * 100)), int((s + .3) * 100); on = next((i for i in range(i0, i1) if db[i] > thr), int(s * 100)) / 100
         j0, j1 = min(len(db) - 1, int((e + .6) * 100)), int((e - .3) * 100); off = next((i for i in range(j0, j1, -1) if db[i] > thr), int(e * 100)) / 100
-        out.append([round(max(0, on - .12), 3), round(off + .18, 3)])
+        out.append([round(max(0, on - .15), 3), round(off + .30, 3)])   # folga no fim: o crossfade cai no silêncio, nunca na palavra
     for k in range(1, len(out)):          # nunca sobrepor trechos vizinhos do bruto
         if out[k][0] < out[k - 1][1]: m = (out[k][0] + out[k - 1][1]) / 2; out[k - 1][1] = m; out[k][0] = m
     return out
@@ -55,7 +55,7 @@ def montar(src, trechos, vel, xf, cauda):
     print("ok: cut.mov %.2f s | vídeo final %.2f s (com cartão final)" % (Lv, TOTAL)); print("frases:", sent)
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(); ap.add_argument("acao"); ap.add_argument("bruto"); ap.add_argument("trechos", nargs="?")
-    ap.add_argument("--modelo", default="small"); ap.add_argument("--vel", type=float, default=1.04); ap.add_argument("--xf", type=float, default=.15); ap.add_argument("--cauda", type=float, default=2.5)
+    ap.add_argument("--modelo", default="small"); ap.add_argument("--vel", type=float, default=1.04); ap.add_argument("--xf", type=float, default=.10); ap.add_argument("--cauda", type=float, default=2.5)
     a = ap.parse_args()
     if a.acao == "transcrever": transcrever(a.bruto, a.modelo)
     else: montar(a.bruto, json.load(open(a.trechos)), a.vel, a.xf, a.cauda)

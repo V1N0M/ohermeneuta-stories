@@ -24,7 +24,7 @@ SWEEPS = []
 for s in CFG["sweeps"]:
     ln = lines_of(s["rect"]); ta, tb = span(s["sent"], s.get("from"), s.get("to"))
     if s.get("at") is not None: ta = tok(s["sent"], s["at"])[0]; tb = ta + s.get("dur", .6)
-    SWEEPS.append(dict(id=s["id"], lines=ln, ta=ta, tb=tb, beat=s["sent"], mark=s.get("mark", True), zoom=s.get("zoom")))
+    SWEEPS.append(dict(id=s["id"], lines=ln, ta=ta, tb=tb, beat=s["sent"], mark=s.get("mark", True), zoom=s.get("zoom"), pan=s.get("pan")))
 def prog(sw, t):
     tot = sum(l[2] - l[0] for l in sw["lines"]); p = min(1, max(0, (t - sw["ta"]) / max(.05, sw["tb"] - sw["ta"]))) * tot; out = []; head = None
     for l in sw["lines"]:
@@ -45,7 +45,7 @@ def keys():
     thr = CFG.get("move_thr", .22) * WH / S_TXT
     def glide(a, b, t_end):
         dist = math.hypot(b[0] - a[0], b[1] - a[1]) * b[2] + abs(math.log(b[2] / a[2])) * 900
-        dur = min(CFG.get("glide_max", 1.8), max(.9, .7 + dist / 2500)); st = max(prev_tb + .05, t_end - dur)
+        dur = min(CFG.get("glide_max", 1.8), max(CFG.get("glide_min", .9), .7 + dist / 2500)); st = max(prev_tb + .05, t_end - dur)
         pts.append((st,) + a)
         for i in range(1, 13):
             u = i / 12; e = u * u * (3 - 2 * u); pts.append((st + dur * u, a[0] + (b[0] - a[0]) * e, a[1] + (b[1] - a[1]) * e, math.exp(math.log(a[2]) + (math.log(b[2]) - math.log(a[2])) * e)))
@@ -56,7 +56,12 @@ def keys():
             tgt = (COLX, clampc(0, (q["lines"][0][1] + q["lines"][-1][3]) / 2, S_TXT)[1], S_TXT)
             if abs(tgt[1] - cur[1]) > thr or abs(cur[2] - S_TXT) > .01 or abs(cur[0] - COLX) > 5: glide(cur, tgt, q["ta"] - .1); cur = tgt
         else:
-            path = []; hx = WW / 2 / z; tot = sum(l[2] - l[0] for l in q["lines"]); cum = 0
+            hx = WW / 2 / z
+            if q.get("pan") is False:   # lupa parada: zoom fixo, alinhado ao início das linhas, sem vai e vem lateral
+                tgt = (*clampc(min(l[0] for l in q["lines"]) + hx - 40, (q["lines"][0][1] + q["lines"][-1][3]) / 2, z), z)
+                if abs(tgt[1] - cur[1]) > thr * .5 or abs(tgt[0] - cur[0]) > 30 or abs(math.log(cur[2] / z)) > .02: glide(cur, tgt, q["ta"] - .1); cur = tgt
+                prev_tb = max(prev_tb, q["tb"]); continue
+            path = []; tot = sum(l[2] - l[0] for l in q["lines"]); cum = 0
             for l in q["lines"]:
                 ti = q["ta"] + (q["tb"] - q["ta"]) * cum / tot; cum += l[2] - l[0]; to_ = q["ta"] + (q["tb"] - q["ta"]) * cum / tot
                 yl = (l[1] + l[3]) / 2; c0 = l[0] + hx - 40; c1 = l[2] - hx + 40
